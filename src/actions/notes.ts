@@ -55,6 +55,7 @@ export async function createNote(formdata: FormData) {
       content,
       authorId: session.user.id,
     },
+    skipDuplicates: true,
   });
   revalidatePath('/dashboard');
   // refresh the path after creating a note
