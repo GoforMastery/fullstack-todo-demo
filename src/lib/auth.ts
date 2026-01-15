@@ -11,3 +11,8 @@ export const auth = betterAuth({
   },
   trustedOrigins: ['http://localhost:3001'],
 });
+
+// Export the Session type inferred from your auth config
+// this is useful for typing session objects throughout your app
+// e.g., in API route handlers or server-side functions request
+export type Session = typeof auth.$Infer.Session;

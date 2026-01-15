@@ -1,67 +1,80 @@
 'use client';
-
-import { signUp } from '@/lib/auth-client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { authClient } from '../../lib/auth-client';
+
+// this is done by first time user
+// so we need name, email and password
+
+const signUpSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters long'),
+  email: z.email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters long'),
+});
+
+type signUpSchemaType = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const { register, handleSubmit } = useForm<signUpSchemaType>({
+    resolver: zodResolver(signUpSchema),
+  });
+  // what it does is that it validates the form data based on the schema defined using zod library
+  // (data : { name: string; email: string; password: string })
+  async function onSubmit(data: signUpSchemaType) {
     setError(null);
-
-    const formData = new FormData(e.currentTarget);
-
-    const res = await signUp.email({
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
+    const res = await authClient.signUp.email({
+      name: data.name,
+      email: data.email,
+      password: data.password,
     });
+    console.log(res);
 
     if (res.error) {
-      setError(res.error.message || 'Something went wrong.');
+      setError(res.error.message || 'An error occurred');
     } else {
       router.push('/dashboard');
     }
   }
-
   return (
-    <main className="max-w-md mx-auto p-6 space-y-4 text-white">
-      <h1 className="text-2xl font-bold">Sign Up</h1>
-
-      {error && <p className="text-red-500">{error}</p>}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          placeholder="Full Name"
-          required
-          className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
-        />
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          required
-          className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          required
-          minLength={8}
-          className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
-        />
-        <button
-          type="submit"
-          className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200"
-        >
-          Create Account
-        </button>
-      </form>
+    <main className="h-screen w-md mx-auto p-6 space-y-4 text-white bg-black flex flex-col justify-center items-center">
+      <div className="rounded-lg p-6 shadow-lg flex flex-col gap-4">
+        <h1 className="text-2xl font-bold text-center">Sign Up</h1>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input
+            {...register('name')}
+            placeholder="Full Name"
+            required
+            className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
+          />
+          <input
+            {...register('email')}
+            type="email"
+            placeholder="Email"
+            required
+            className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
+          />
+          <input
+            {...register('password')}
+            type="password"
+            placeholder="Password"
+            required
+            minLength={8}
+            className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
+          />
+          <button
+            type="submit"
+            className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200 cursor-pointer"
+          >
+            Create Account
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

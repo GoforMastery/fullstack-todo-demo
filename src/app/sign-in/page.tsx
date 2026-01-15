@@ -1,22 +1,30 @@
 'use client';
-
-import { signIn } from '@/lib/auth-client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { authClient } from '../../lib/auth-client';
+
+// what we need while sign in: email and password
+const signInSchema = z.object({
+  email: z.email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters long'),
+});
+
+type signInSchemaType = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const { register, handleSubmit } = useForm({
+    resolver: zodResolver(signInSchema),
+  });
+  async function onSubmit(data: signInSchemaType) {
     setError(null);
-
-    const formData = new FormData(e.currentTarget);
-
-    const res = await signIn.email({
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
+    const res = await authClient.signIn.email({
+      email: data.email,
+      password: data.password,
     });
 
     if (res.error) {
@@ -25,23 +33,22 @@ export default function SignInPage() {
       router.push('/dashboard');
     }
   }
-
   return (
     <main className="max-w-md h-screen flex items-center justify-center flex-col mx-auto p-6 space-y-4 text-white">
       <h1 className="text-2xl font-bold">Sign In</h1>
 
       {error && <p className="text-red-500">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <input
-          name="email"
+          {...register('email')}
           type="email"
           placeholder="Email"
           required
           className="w-full rounded-md bg-neutral-900 border border-neutral-700 px-3 py-2"
         />
         <input
-          name="password"
+          {...register('password')}
           type="password"
           placeholder="Password"
           required
@@ -49,7 +56,7 @@ export default function SignInPage() {
         />
         <button
           type="submit"
-          className="w-full bg-white text-black font-medium rounded-md px-4 py-2 hover:bg-gray-200"
+          className="w-full bg-blue-300 text-black font-medium rounded-md px-4 py-2 hover:bg-blue-500 hover:cursor-pointer"
         >
           Sign In
         </button>
