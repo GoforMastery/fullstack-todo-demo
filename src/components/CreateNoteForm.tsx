@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { createNote } from '@/actions/notes';
+import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -31,11 +31,9 @@ export function CreateNoteForm() {
         <Textarea name="content" placeholder="type something here." />
       </div>
 
-      {error && (
-        <p className="text-red-500 text-sm">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
-      <Button type="submit" variant="default">
+      <Button type="submit" variant="default" className="hover:cursor-pointer">
         Save Note
       </Button>
     </form>
