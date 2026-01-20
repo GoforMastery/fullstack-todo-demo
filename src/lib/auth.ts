@@ -5,6 +5,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { emailOTP } from 'better-auth/plugins';
 
 export const auth = betterAuth({
+  debug: true,
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL || 'https://fullstack-todo-demo-mu.vercel.app',
   database: prismaAdapter(prisma, {

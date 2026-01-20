@@ -32,7 +32,7 @@ function VerifyComponent() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>{type === 'sign-in' ? 'Check your email' : 'Verify your email'}</CardTitle>
-          <CardDescription>Enter the 6-digit code sent to you at {email}.</CardDescription>
+          <CardDescription>Enter the 8-digit code sent to you at {email}.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           {verifyError && <p className="text-destructive text-sm text-center">{verifyError}</p>}
@@ -40,7 +40,7 @@ function VerifyComponent() {
             type="text"
             autoComplete="one-time-code"
             inputMode="numeric"
-            pattern="\d{6}"
+            pattern="\d{8}"
             maxLength={8}
             required
             onChange={handleChange}
